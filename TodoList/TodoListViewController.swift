@@ -11,9 +11,15 @@ import UIKit
 class TodoListViewController: UITableViewController {
 
     var dataArray = ["Buy Apples", "Buy Milk", "Pay Bills"]
+    //Storing the Data Persistently using UserDefaults
+    let defaults = UserDefaults.standard
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+       
+        //Retrieve the Stored Data from UserDefaults using key "TodoList" and put it in dataArray
+        dataArray = defaults.array(forKey: "TodoList") as! [String]
+        
     }
     
 
@@ -69,9 +75,8 @@ class TodoListViewController: UITableViewController {
         
         print("localtextField=\(localTextField.text!)")
         self.dataArray.append(localTextField.text!)
+        self.defaults.set(self.dataArray, forKey: "TodoList")   //store data with Key "TodoList" & value pair in Defaults (Persistance Data)
         self.tableView.reloadData()
-            
-        
         }
         
         alert.addAction(alertAction)  //Add the Action of Alert window
