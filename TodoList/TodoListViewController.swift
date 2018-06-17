@@ -15,6 +15,7 @@ class TodoListViewController: UITableViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
     }
+    
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -55,8 +56,32 @@ class TodoListViewController: UITableViewController {
         }else{
             tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark  //When the cell is selected , it is marked with Checkmark
         }
+    }
+    
+
+    
+    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+        var localTextField = UITextField()
+        //Create a Type of Alert with Title
+        let alert = UIAlertController(title: "Add New Item", message: "", preferredStyle: .alert)
+        //Create a Action for Alert
+        let alertAction = UIAlertAction(title: "Add Item", style: .default) { (action) in
         
+        print("localtextField=\(localTextField.text!)")
+        self.dataArray.append(localTextField.text!)
+        self.tableView.reloadData()
+            
         
+        }
+        
+        alert.addAction(alertAction)  //Add the Action of Alert window
+        //Add the textField to Alert Window
+        alert.addTextField { (alertTextField) in
+            alertTextField.placeholder = "Create a New Item"
+            localTextField = alertTextField
+        }
+        
+        present(alert, animated: true, completion: nil)
     }
 }
 
