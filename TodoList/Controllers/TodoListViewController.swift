@@ -9,17 +9,33 @@
 import UIKit
 
 class TodoListViewController: UITableViewController {
-
-    var dataArray = ["Buy Apples", "Buy Milk", "Pay Bills"]
+   //dataArray is now array of object of Class Items
+    var dataArray =  [Items]()       //["Buy Apples", "Buy Milk", "Pay Bills"]
     //Storing the Data Persistently using UserDefaults
     let defaults = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
        
-        //Retrieve the Stored Data from UserDefaults using key "TodoList" and put it in dataArray
-        dataArray = defaults.array(forKey: "TodoList") as! [String]
         
+      
+        let newItem = Items()
+        newItem.itemData = "Buy Apples"
+        dataArray.append(newItem)
+        
+        let newItem1 = Items()
+        newItem1.itemData = "Buy Milk"
+        dataArray.append(newItem1)
+        
+        let newItem2 = Items()
+        newItem2.itemData = "Buy Vegies"
+        dataArray.append(newItem2)
+        
+        //Retrieve the Stored Data from UserDefaults using key "TodoList" and put it in dataArray
+        
+        if let itemsData = defaults.array(forKey: "TodoList") as? [Items] {
+            dataArray = itemsData
+        }
     }
     
 
@@ -40,7 +56,12 @@ class TodoListViewController: UITableViewController {
         
         let cell =  tableView.dequeueReusableCell(withIdentifier: "Todocell", for: indexPath) as! TodoTableViewCell
         
-        cell.messageLabel.text! = dataArray[indexPath.row]
+        cell.messageLabel.text! = dataArray[indexPath.row].itemData
+   
+        
+        //##2
+        let itemName = dataArray[indexPath.row]
+        cell.accessoryType =  itemName.itemChecked ? .checkmark : .none  //This is ternary Operator used here
         
         //Instead of defining label on Cell., we write on cell using below statement
         //cell.textLabel?.text! = dataArray[indexPath.row]
@@ -54,14 +75,23 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 
-        print(dataArray[indexPath.row])
+        //print(dataArray[indexPath.row])
+       
         tableView.deselectRow(at: indexPath, animated: true) //This gives animation when the row is selected, the gray color comes n goes off
+        // ##1
+        dataArray[indexPath.row].itemChecked = !dataArray[indexPath.row].itemChecked
         
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark{
+        tableView.reloadData()
+        
+        /* These Statements can be replaced by ##1 & ##2
+        if dataArray[indexPath.row].itemChecked == true{
+            dataArray[indexPath.row].itemChecked = false
             tableView.cellForRow(at: indexPath)?.accessoryType = .none
-        }else{
-            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark  //When the cell is selected , it is marked with Checkmark
-        }
+        }else {
+             dataArray[indexPath.row].itemChecked = true
+             tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
+        }*/
+  
     }
     
 
@@ -74,10 +104,13 @@ class TodoListViewController: UITableViewController {
         let alertAction = UIAlertAction(title: "Add Item", style: .default) { (action) in
         
         print("localtextField=\(localTextField.text!)")
-        self.dataArray.append(localTextField.text!)
+        let newItem = Items()
+        newItem.itemData = localTextField.text!
+        self.dataArray.append(newItem)
+            
         self.defaults.set(self.dataArray, forKey: "TodoList")   //store data with Key "TodoList" & value pair in Defaults (Persistance Data)
         self.tableView.reloadData()
-        }
+    }
         
         alert.addAction(alertAction)  //Add the Action of Alert window
         //Add the textField to Alert Window
