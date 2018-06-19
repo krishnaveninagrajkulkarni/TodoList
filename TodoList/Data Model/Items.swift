@@ -7,8 +7,8 @@
 //
 
 import Foundation
-
-class Items {
+//Codable is added to class to make it able to encode n decode the properties (Only the standard Datatype Properties) defined in the class
+class Items:Codable {
     
     var itemData: String = ""
     var itemChecked: Bool = false

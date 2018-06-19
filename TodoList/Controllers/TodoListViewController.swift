@@ -11,31 +11,16 @@ import UIKit
 class TodoListViewController: UITableViewController {
    //dataArray is now array of object of Class Items
     var dataArray =  [Items]()       //["Buy Apples", "Buy Milk", "Pay Bills"]
-    //Storing the Data Persistently using UserDefaults
-    let defaults = UserDefaults.standard
+    
+    //Creating our own custom plist in default directory of the App Folder
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+   
     
     override func viewDidLoad() {
         super.viewDidLoad()
-       
+        print("datafilepath is = \(dataFilePath)")
         
-      
-        let newItem = Items()
-        newItem.itemData = "Buy Apples"
-        dataArray.append(newItem)
-        
-        let newItem1 = Items()
-        newItem1.itemData = "Buy Milk"
-        dataArray.append(newItem1)
-        
-        let newItem2 = Items()
-        newItem2.itemData = "Buy Vegies"
-        dataArray.append(newItem2)
-        
-        //Retrieve the Stored Data from UserDefaults using key "TodoList" and put it in dataArray
-        
-        if let itemsData = defaults.array(forKey: "TodoList") as? [Items] {
-            dataArray = itemsData
-        }
+        loadItem()
     }
     
 
@@ -58,14 +43,12 @@ class TodoListViewController: UITableViewController {
         
         cell.messageLabel.text! = dataArray[indexPath.row].itemData
    
-        
         //##2
         let itemName = dataArray[indexPath.row]
         cell.accessoryType =  itemName.itemChecked ? .checkmark : .none  //This is ternary Operator used here
-        
+    
         //Instead of defining label on Cell., we write on cell using below statement
         //cell.textLabel?.text! = dataArray[indexPath.row]
-        
         return cell
         
     }
@@ -80,18 +63,10 @@ class TodoListViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true) //This gives animation when the row is selected, the gray color comes n goes off
         // ##1
         dataArray[indexPath.row].itemChecked = !dataArray[indexPath.row].itemChecked
-        
+        saveItem()
         tableView.reloadData()
         
-        /* These Statements can be replaced by ##1 & ##2
-        if dataArray[indexPath.row].itemChecked == true{
-            dataArray[indexPath.row].itemChecked = false
-            tableView.cellForRow(at: indexPath)?.accessoryType = .none
-        }else {
-             dataArray[indexPath.row].itemChecked = true
-             tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        }*/
-  
+        
     }
     
 
@@ -107,8 +82,7 @@ class TodoListViewController: UITableViewController {
         let newItem = Items()
         newItem.itemData = localTextField.text!
         self.dataArray.append(newItem)
-            
-        self.defaults.set(self.dataArray, forKey: "TodoList")   //store data with Key "TodoList" & value pair in Defaults (Persistance Data)
+        self.saveItem()
         self.tableView.reloadData()
     }
         
@@ -121,5 +95,30 @@ class TodoListViewController: UITableViewController {
         
         present(alert, animated: true, completion: nil)
     }
+  
+    //Adding the Items data into Plist - with all the Properties(i.e. itemData n itemChecked) of Items Class
+    func saveItem(){
+        let encoder = PropertyListEncoder()
+        do{
+            let data = try encoder.encode(dataArray)
+            try data.write(to: dataFilePath!)
+        }catch {
+            print(error)
+        }
+        
+    }
+    //Retrieving the Data from Items.plist
+    func loadItem(){
+        let decoder = PropertyListDecoder()
+        let data = try? Data(contentsOf: dataFilePath!)
+        do {
+            dataArray = try decoder.decode([Items].self, from: data!)
+        }catch{
+            print(error)
+        }
+        
+    }
+    
 }
+
 
